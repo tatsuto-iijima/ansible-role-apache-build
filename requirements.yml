@@ -1,0 +1,7 @@
+---
+collections:
+  - community.general
+  - community.docker
+
+roles:
+  - tatsuto_iijima.openssl_build

@@ -1,0 +1,76 @@
+---
+# tasks file for apache_build
+- name: "Validation"
+  assert:
+    that:
+      - "'{{ apache_build_version | regex_replace('^(\\d+\\.\\d+)\\.\\d+$', '\\1') }}' == '2.4'"
+      - "'{{ ansible_distribution }}' in ['CentOS', 'RedHat']"
+
+- when: ansible_distribution == 'CentOS'
+  name: "Validation for CentOS"
+  assert:
+    that:
+      - "'{{ ansible_distribution_major_version }}' in ['7', '8']"
+
+- when: ansible_distribution == 'RedHat'
+  name: "Validation for RedHat"
+  assert:
+    that:
+      - "'{{ ansible_distribution_major_version }}' in ['8']"
+
+- name: "Install required packages"
+  yum:
+    name: "{{ apache_build_required_packages }}"
+    state: present
+
+- name: Remove Apache source
+  ansible.builtin.file:
+    path: "{{ apache_build_src_path }}"
+    state: absent
+  changed_when: false
+
+- when: not apache_build_unarchive_remote_src
+  name: Create temporary download directory
+  local_action:
+    module: tempfile
+    state: directory
+  register: apache_build_temp_download_dir
+  changed_when: false
+
+- when: not apache_build_unarchive_remote_src
+  name: "Download Apache sources to local"
+  local_action:
+    module: get_url
+    url: "{{ apache_build_src_url }}"
+    dest: "{{ apache_build_temp_download_dir.path }}"
+  register: apache_build_temp_download_file
+  changed_when: false
+
+- name: "Unarchive Apache source"
+  unarchive:
+    src: "{% if not apache_build_unarchive_remote_src %}{{ apache_build_temp_download_file.dest }}{% else %}{{ apache_build_src_url }}{% endif %}"
+    dest: "{{ apache_build_unarchive_dest }}"
+    remote_src: "{{ apache_build_unarchive_remote_src }}"
+  changed_when: false
+
+- when: not apache_build_unarchive_remote_src
+  name: "Delete downloaded Apache sources to local"
+  local_action:
+    module: file
+    path: "{{ apache_build_temp_download_dir.path }}"
+    state: absent
+  changed_when: false
+
+- name: "Execute Apache configure"
+  command:
+    cmd: "./configure{% if apache_build_configure_option %} {{ apache_build_configure_option | join(' ') }}{% endif %}"
+    chdir: "{{ apache_build_src_path }}"
+  changed_when: false
+
+- name: "Execute Apache make"
+  community.general.make:
+    chdir: "{{ apache_build_src_path }}"
+    target: "{{ item.target }}"
+    params: "{{ item.params }}"
+  changed_when: false
+  loop: "{{ apache_build_make_target }}"

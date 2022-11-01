@@ -1,0 +1,18 @@
+---
+# defaults file for apache_build
+
+# Whether to download the Apache sources on a remote server
+apache_build_unarchive_remote_src: no
+
+# Apache unarchive dest
+apache_build_unarchive_dest: /usr/local/src
+
+# Apache configure option
+apache_build_configure_option: []
+
+# Apache make target
+apache_build_make_target:
+  - target: all
+    params: {}
+  - target: install
+    params: {}

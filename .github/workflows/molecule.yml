@@ -1,0 +1,40 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version:
+          - '3.8'
+          - '3.9'
+          - '3.10'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: apache_build
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install "molecule[docker]"
+          python3 -m pip install ansible-core
+        working-directory: ./apache_build
+      - name: Test with molecule
+        run: |
+          molecule test --all
+        working-directory: ./apache_build

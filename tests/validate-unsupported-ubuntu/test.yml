@@ -1,0 +1,7 @@
+---
+- hosts: validation-test
+  connection: docker
+  vars:
+    - apache_build_version: "2.4.54"
+  roles:
+    - ../../../apache_build

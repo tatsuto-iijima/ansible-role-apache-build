@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include tatsuto_iijima.openssl_build"
+      include_role:
+        name: "tatsuto_iijima.openssl_build"
+      vars:
+        openssl_build_version: 1.1.1q
+        openssl_build_config_option:
+          - "--prefix=/usr/local/openssl"
+          - "'-Wl,-rpath,$(LIBRPATH)'"
+
+    - name: "Include apache_build"
+      include_role:
+        name: "apache_build"
+      vars:
+        apache_build_version: "2.4.54"
+        apache_build_configure_option:
+          - "--with-ssl=/usr/local/openssl"
+          - "LDFLAGS='-Wl,-rpath,/usr/local/openssl/lib'"

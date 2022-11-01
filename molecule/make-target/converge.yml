@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    - apache_build_version: '2.4.54'
+    - apache_build_make_target:
+      - target: all
+        params: {}
+      - target: install
+        params:
+          INSTALL_TARGETS: "install-htdocs install-error install-icons install-other install-cgi install-include install-suexec install-build install-man"
+  tasks:
+    - name: "Include apache_build"
+      include_role:
+        name: "apache_build"

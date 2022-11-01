@@ -1,0 +1,52 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  vars:
+    - apache_build_version: "2.4.54"
+    - apache_build_prefix: "/usr/local/apache2"
+  tasks:
+    - name: "List Apache installed path"
+      stat:
+        path: "{{ item }}"
+      register: apache_build_exists
+      loop:
+        - "/usr/local/src/httpd-{{ apache_build_version }}"
+        - "{{ apache_build_prefix }}/bin"
+        - "{{ apache_build_prefix }}/build"
+        - "{{ apache_build_prefix }}/cgi-bin"
+        - "{{ apache_build_prefix }}/error"
+        - "{{ apache_build_prefix }}/htdocs"
+        - "{{ apache_build_prefix }}/icons"
+        - "{{ apache_build_prefix }}/include"
+        - "{{ apache_build_prefix }}/logs"
+        - "{{ apache_build_prefix }}/man"
+        - "{{ apache_build_prefix }}/manual"
+        - "{{ apache_build_prefix }}/modules"
+
+    - name: "Check Apache file exists"
+      assert:
+        that: item.stat.exists
+      loop: "{{ apache_build_exists.results }}"
+
+    - name: "List Apache not installed path"
+      stat:
+        path: "{{ item }}"
+      register: apache_build_not_exists
+      loop:
+        - "{{ apache_build_prefix }}/conf"
+
+    - name: "Check Apache file not exists"
+      assert:
+        that: not item.stat.exists
+      loop: "{{ apache_build_not_exists.results }}"
+
+    - name: "Get Apache version"
+      command: "{{ apache_build_prefix }}/bin/httpd -v"
+      register: apache_build_current_version
+
+    - name: "Check Apache version"
+      assert:
+        that: apache_build_current_version.stdout | regex_replace('^Server\\sversion:\\sApache/(\\S+)\\s\\(Unix\\)\\nServer\\sbuilt:\\s+.+$','\\1') == apache_build_version

@@ -1,0 +1,39 @@
+---
+# vars file for apache_build
+
+# Packages required to build Apache
+apache_build_required_packages:
+  - perl
+  - make
+  - gcc
+  - apr-devel
+  - apr-util-devel
+  - pcre-devel
+
+# Whether to download the Apache sources on a remote server (optional, boolean, default: no)
+# apache_build_unarchive_remote_src: yes or no
+
+# Apache version (required, string)
+# apache_build_version: "2.4.54"
+
+# Apache source download URL
+apache_build_src_url: "https://archive.apache.org/dist/httpd/httpd-{{ apache_build_version }}.tar.gz"
+
+# Apache unarchive dest (optional, path, default: /usr/local/src)
+# apache_build_unarchive_dest: /usr/local/src
+
+# Apache config option (optional, list / elements=string, default: [])
+# apache_build_configure_option:
+#   - "--with-ssl=/usr/local/openssl"
+#   - "LDFLAGS='-Wl,-rpath,/usr/local/openssl/lib'"
+
+# Apache unarchive source path
+apache_build_src_path: "{{ apache_build_unarchive_dest }}/httpd-{{ apache_build_version }}"
+
+# Apache make target (optional, list, default: [ { target: all, params: {} }, { target: install, params: {} } ])
+# apache_build_make_target:
+#   - target: all
+#       params: {}
+#   - target: install
+#       params:
+#         INSTALL_TARGETS: "install-conf install-htdocs install-error install-icons install-other install-cgi install-include install-suexec install-build install-man"
