@@ -1,8 +1,8 @@
 galaxy_info:
-  author: your name
+  author: Tatsuto Iijima
   namespace: tatsuto_iijima
-  role_name: openssl_build
-  description: the role that builds OpenSSL from source
+  role_name: apache_build
+  description: the role that builds Apache from source
   license: Apache-2.0
   min_ansible_version: 2.13
   platforms:
